@@ -54,6 +54,7 @@ module Fog
       request :attach_classic_link_vpc
       request :attach_internet_gateway
       request :attach_volume
+      request :authorize_security_group_egress
       request :authorize_security_group_ingress
       request :cancel_spot_instance_requests
       request :create_dhcp_options
@@ -150,6 +151,7 @@ module Fog
       request :register_image
       request :request_spot_instances
       request :reset_network_interface_attribute
+      request :revoke_security_group_egress
       request :revoke_security_group_ingress
       request :run_instances
       request :terminate_instances
@@ -415,7 +417,7 @@ module Fog
             tag_filters[key.gsub('tag:', '')] = filters.delete(key) if /^tag:/ =~ key
           end
           for tag_key, tag_value in tag_filters
-            resources = resources.select{|r| tag_value == tag_set_fetcher[r][tag_key]}
+            resources = resources.select{|r| [tag_value].flatten.include? tag_set_fetcher[r][tag_key]}
           end
 
           resources

@@ -133,6 +133,20 @@ module Fog
           https_url(params, expires)
         end
 
+        def require_mime_types
+          begin
+            # Use mime/types/columnar if available, for reduced memory usage
+            require 'mime/types/columnar'
+          rescue LoadError
+            begin
+              require 'mime/types'
+            rescue LoadError
+              Fog::Logger.warning("'mime-types' missing, please install and try again.")
+              exit(1)
+            end
+          end
+        end
+
         def request_url(params)
           params = request_params(params)
           params_to_url(params)
@@ -176,6 +190,7 @@ module Fog
 
           params = request_params(params)
           params[:headers][:host] = params[:host]
+          params[:headers][:host] += ":#{params[:port]}" if params.fetch(:port, nil)
 
           signature_query_params = @signer.signature_parameters(params, now, "UNSIGNED-PAYLOAD")
           params[:query] = (params[:query] || {}).merge(signature_query_params)
@@ -406,6 +421,8 @@ module Fog
         end
 
         def initialize(options={})
+          require_mime_types
+
           @use_iam_profile = options[:use_iam_profile]
 
           @region = options[:region] || DEFAULT_REGION
@@ -473,6 +490,7 @@ module Fog
         # ==== Returns
         # * S3 object with connection to aws.
         def initialize(options={})
+          require_mime_types
 
           @use_iam_profile = options[:use_iam_profile]
           @instrumentor       = options[:instrumentor]
@@ -568,7 +586,7 @@ module Fog
               params[:headers]['x-amz-content-sha256'] = 'STREAMING-AWS4-HMAC-SHA256-PAYLOAD'
               params[:headers]['x-amz-decoded-content-length'] = params[:headers].delete 'Content-Length'
             else
-              params[:headers]['x-amz-content-sha256'] ||= Digest::SHA256.hexdigest(params[:body] || '')
+              params[:headers]['x-amz-content-sha256'] ||= OpenSSL::Digest::SHA256.hexdigest(params[:body] || '')
             end
             signature_components = @signer.signature_components(params, date, params[:headers]['x-amz-content-sha256'])
             params[:headers]['Authorization'] = @signer.components_to_header(signature_components)
@@ -646,6 +664,7 @@ module Fog
           #we must also reset the signature
           def rewind
             self.signature = initial_signature
+            self.finished = false
             body.rewind
           end
 
@@ -674,8 +693,8 @@ AWS4-HMAC-SHA256-PAYLOAD
 #{date.to_iso8601_basic}
 #{signer.credential_scope(date)}
 #{previous_signature}
-#{Digest::SHA256.hexdigest('')}
-#{Digest::SHA256.hexdigest(data)}
+#{OpenSSL::Digest::SHA256.hexdigest('')}
+#{OpenSSL::Digest::SHA256.hexdigest(data)}
 DATA
             hmac = signer.derived_hmac(date)
             hmac.sign(string_to_sign.strip).unpack('H*').first

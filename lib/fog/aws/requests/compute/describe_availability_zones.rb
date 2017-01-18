@@ -22,7 +22,7 @@ module Fog
         def describe_availability_zones(filters = {})
           unless filters.is_a?(Hash)
             Fog::Logger.deprecation("describe_availability_zones with #{filters.class} param is deprecated, use describe_availability_zones('zone-name' => []) instead [light_black](#{caller.first})[/]")
-            filters = {'public-ip' => [*filters]}
+            filters = {'zone-name' => [*filters]}
           end
           params = Fog::AWS.indexed_filters(filters)
           request({
@@ -37,7 +37,7 @@ module Fog
         def describe_availability_zones(filters = {})
           unless filters.is_a?(Hash)
             Fog::Logger.deprecation("describe_availability_zones with #{filters.class} param is deprecated, use describe_availability_zones('zone-name' => []) instead [light_black](#{caller.first})[/]")
-            filters = {'public-ip' => [*filters]}
+            filters = {'zone-name' => [*filters]}
           end
 
           response = Excon::Response.new
@@ -48,6 +48,10 @@ module Fog
             {"messageSet" => [], "regionName" => "us-east-1", "zoneName" => "us-east-1c", "zoneState" => "available"},
             {"messageSet" => [], "regionName" => "us-east-1", "zoneName" => "us-east-1d", "zoneState" => "available"},
             {"messageSet" => [], "regionName" => "us-east-1", "zoneName" => "us-east-1e", "zoneState" => "available"},
+
+            {"messageSet" => [], "regionName" => "us-east-2", "zoneName" => "us-east-2a", "zoneState" => "available"},
+            {"messageSet" => [], "regionName" => "us-east-2", "zoneName" => "us-east-2b", "zoneState" => "available"},
+            {"messageSet" => [], "regionName" => "us-east-2", "zoneName" => "us-east-2c", "zoneState" => "available"},
 
             {"messageSet" => [], "regionName" => "us-west-1", "zoneName" => "us-west-1a", "zoneState" => "available"},
             {"messageSet" => [], "regionName" => "us-west-1", "zoneName" => "us-west-1b", "zoneState" => "available"},
@@ -63,17 +67,29 @@ module Fog
             {"messageSet" => [], "regionName" => "eu-west-1", "zoneName" => "eu-west-1b", "zoneState" => "available"},
             {"messageSet" => [], "regionName" => "eu-west-1", "zoneName" => "eu-west-1c", "zoneState" => "available"},
 
+            {"messageSet" => [], "regionName" => "eu-west-2", "zoneName" => "eu-west-2a", "zoneState" => "available"},
+            {"messageSet" => [], "regionName" => "eu-west-2", "zoneName" => "eu-west-2b", "zoneState" => "available"},
+
             {"messageSet" => [], "regionName" => "eu-central-1", "zoneName" => "eu-central-1a", "zoneState" => "available"},
             {"messageSet" => [], "regionName" => "eu-central-1", "zoneName" => "eu-central-1b", "zoneState" => "available"},
 
+            {"messageSet" => [], "regionName" => "ca-central-1", "zoneName" => "ca-central-1a", "zoneState" => "available"},
+            {"messageSet" => [], "regionName" => "ca-central-1", "zoneName" => "ca-central-1b", "zoneState" => "available"},
+
             {"messageSet" => [], "regionName" => "ap-northeast-1", "zoneName" => "ap-northeast-1a", "zoneState" => "available"},
             {"messageSet" => [], "regionName" => "ap-northeast-1", "zoneName" => "ap-northeast-1b", "zoneState" => "available"},
+
+            {"messageSet" => [], "regionName" => "ap-northeast-2", "zoneName" => "ap-northeast-2a", "zoneState" => "available"},
+            {"messageSet" => [], "regionName" => "ap-northeast-2", "zoneName" => "ap-northeast-2b", "zoneState" => "available"},
 
             {"messageSet" => [], "regionName" => "ap-southeast-1", "zoneName" => "ap-southeast-1a", "zoneState" => "available"},
             {"messageSet" => [], "regionName" => "ap-southeast-1", "zoneName" => "ap-southeast-1b", "zoneState" => "available"},
 
             {"messageSet" => [], "regionName" => "ap-southeast-2", "zoneName" => "ap-southeast-2a", "zoneState" => "available"},
             {"messageSet" => [], "regionName" => "ap-southeast-2", "zoneName" => "ap-southeast-2b", "zoneState" => "available"},
+
+            {"messageSet" => [], "regionName" => "ap-south-1", "zoneName" => "ap-south-1a", "zoneState" => "available"},
+            {"messageSet" => [], "regionName" => "ap-south-1", "zoneName" => "ap-south-1b", "zoneState" => "available"},
           ]
 
           availability_zone_info = all_zones.select { |zoneinfo| zoneinfo["regionName"] == @region }
